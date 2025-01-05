@@ -1,6 +1,14 @@
+/*
+light dnd yellow: E0E8DE
+dark dnd yellow: EAD9A6
+light dnd green: B8CDB9
+dnd red: 690F0F
+
+*/
+
 
 body {
-  background: #030229;
+  background: #EAD9A6;
 }
 
 #root {
