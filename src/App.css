@@ -7,3 +7,7 @@ body {
 .main-input {
   display: block
 }
+
+#root {
+  width: 100%;
+}

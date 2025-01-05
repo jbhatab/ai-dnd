@@ -18,21 +18,26 @@ function App() {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="text"
-          value={inputText}
-          onChange={handleInputChange}
-          className="main-input"
-          placeholder="Enter your text"
-        />
-        <button 
-          type="submit"
-          className="submit-button"
-        >
-          Submit
-        </button>
-      </form>
+      <div className='grid grid-cols-3 place-items-center'>
+        <div></div>
+        <form onSubmit={handleSubmit} className='place-items-center'>
+          <input 
+            type="text"
+            value={inputText}
+            onChange={handleInputChange}
+            className="main-input"
+            placeholder="Enter your text"
+          />
+          <button 
+            type="submit"
+            className="submit-button"
+          >
+            Submit
+          </button>
+        </form>
+        
+        <div></div>
+      </div>
     </>
   )
 }
