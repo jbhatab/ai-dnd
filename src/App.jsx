@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -8,10 +8,52 @@ function App() {
   const [inputText, setInputText] = useState('')
   const [bio, setBio] = useState('')
   const [story, setStory] = useState('')
+  const [voices, setVoices] = useState([])
   const [loading, setLoading] = useState(false)
   const [audioUrl, setAudioUrl] = useState(null)
   const [voiceLoading, setVoiceLoading] = useState(false)
   const [picture, setPicture] = useState('')
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+      setInputText(transcript);
+    };
+
+    recognition.start();
+
+    const getVoices = async () => {
+      try {
+        const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+          method: 'GET', 
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': `${import.meta.env.VITE_11_LABS_KEY}`
+          }
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to get voices');
+        }
+        
+        const voices = await response.json();
+        setVoices(voices)
+        console.log('Available voices:', voices);
+      } catch (error) {
+        console.error('Error getting voices:', error);
+      }
+    };
+  
+    getVoices();
+  }, []);
 
   const handleInputChange = (e) => {
     setInputText(e.target.value)
@@ -19,8 +61,9 @@ function App() {
 
   const generateVoice = async (text) => {
     setVoiceLoading(true)
+
     try {
-      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM', {
+      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/CTkkk2CUbffAC8HmgZPq', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
