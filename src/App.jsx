@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import crJson from './transcripts.json';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,6 +18,21 @@ function App() {
   const [recordedText, setRecordedText] = useState('');
   const [summary, setSummary] = useState('');
   const [recording, setRecording] = useState(false);
+  const summaryPrompt = `
+    Create a summary based the following transcript of a recorded DnD session.
+    Return it as HTML with TailwindCSS.
+    First, create a 1-2 sentence synopsis, something that would be displayed as the
+    synopsis of a Netflix TV episode. Label this section TL;DR.
+    Then, proceed to highlight all major story beats, any items characters receieved,
+     any enemies defeated, etc. Make sure to highlight any particularly funny or cool
+    moment. Keep it concise, 1-3 paragraphs. However, it should be detailed enough that
+    players can jump right back into the game in the next session and remember everything,
+    even if it is months later.
+    Label this section 'summary'.
+    Then, list any level-ups, items gained, and bosses defeated. Label this section "progress".
+    At the end: include who you think the "winner of the day" and "idiot of the day" are.
+    Here is the recorded conversation:
+  `
 
   useEffect(() => {
 
@@ -81,6 +97,8 @@ function App() {
 
   async function createSummary() {
     try {
+      const crText = crJson.transcript;
+      console.log("cr Text: " + crText);
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -91,7 +109,7 @@ function App() {
           model: "gpt-3.5-turbo",
           messages: [{
             role: "user",
-            content: `Create a summary of the following recorded conversation from a DnD campaign: ${recordedText}`
+            content: `${summaryPrompt} ${crText}`
           }]
         })
       })
@@ -340,13 +358,13 @@ function App() {
           </div>
           <div className='grid'>
             {story && (
-              <div className='story text-black'>
+              <div className='story'>
                 {story}
               </div>
             )}
           </div>
           <div>
-              <div className='story bg-white'>
+              <div className='story'>
                 {summary}
               </div>
           </div>
