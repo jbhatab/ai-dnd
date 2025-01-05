@@ -25,7 +25,7 @@ function App() {
         .map(result => result[0])
         .map(result => result.transcript)
         .join('');
-      setInputText(transcript);
+      // setInputText(transcript);
     };
 
     recognition.start();
