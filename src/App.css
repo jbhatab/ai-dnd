@@ -9,6 +9,7 @@ dnd red: 690F0F
 
 body {
   background: #EAD9A6;
+  font-family: "EB Garamond", serif;
 }
 
 #root {
@@ -19,3 +20,4 @@ body {
 .main-input {
   display: block
 }
+

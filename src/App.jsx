@@ -9,6 +9,7 @@ function App() {
   const [bio, setBio] = useState('')
   const [story, setStory] = useState('')
   const [voices, setVoices] = useState([])
+  const [activeVoiceId, setActiveVoiceId] = useState('')
   const [loading, setLoading] = useState(false)
   const [audioUrl, setAudioUrl] = useState(null)
   const [voiceLoading, setVoiceLoading] = useState(false)
@@ -33,9 +34,9 @@ function App() {
           throw new Error('Failed to get voices');
         }
         
-        const voices = await response.json();
-        setVoices(voices)
-        console.log('Available voices:', voices);
+        const voiceList = await response.json();
+        setVoices(voiceList.voices)
+        console.log('Available voices:', voiceList);
       } catch (error) {
         console.error('Error getting voices:', error);
       }
@@ -106,11 +107,12 @@ function App() {
     setInputText(e.target.value)
   }
 
-  const generateVoice = async (text) => {
+  const generateVoice = async (text, voiceId) => {
     setVoiceLoading(true)
+    debugger
 
     try {
-      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/CTkkk2CUbffAC8HmgZPq', {
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +155,60 @@ function App() {
     e.preventDefault()
     setLoading(true)
 
-    const generateBio = async () => {
+    const selectVoice = async () => {
+      try {
+        const character_description = `${inputText}`
+        
+        const filteredVoices = voices
+          .slice(20)
+          .map(voice => ({
+            voice_id: voice.voice_id,
+            description: voice.description
+          }));
+
+        const prompt = `
+        Based on the following character description:
+        
+        ${character_description}
+        
+        Choose the best matching voice from the list below:
+        
+        ${JSON.stringify(filteredVoices, null, 2)}
+        
+        Return ONLY the "voice_id" of the chosen voice as a plain string. Do not include any additional text, explanation, or formatting.
+        `
+        
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4",
+            messages: [
+              {"role": "system", "content": "You are an expert in matching voices to character descriptions."},
+              {"role": "user", "content": prompt}
+            ]
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to get voice match')
+        }
+
+        const data = await response.json()
+        const best_match = data.choices[0].message.content.replace(/['"]/g, '')
+        setActiveVoiceId(best_match)
+        console.log("Best Match:", best_match)
+        return best_match
+      } catch (error) {
+        console.error('Error selecting voice:', error)
+        throw error
+      }
+    }
+
+    const generateBio = async (voiceId) => {
       try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -171,7 +226,7 @@ function App() {
         })
         const data = await response.json()
         setBio(data.choices[0].message.content)
-        generateVoice(data.choices[0].message.content)
+        generateVoice(data.choices[0].message.content, voiceId)
       } catch (error) {
         console.error('Error:', error)
         setBio('An error occurred while fetching the response')
@@ -227,9 +282,12 @@ function App() {
     }
 
     try {
-      // Run both API calls in parallel
+      // First get the voice ID
+      const voiceId = await selectVoice()
+      
+      // Then run the rest of the API calls in parallel
       await Promise.all([
-        generateBio(),
+        generateBio(voiceId),
         generateStory(),
         generateImage()
       ])
@@ -275,14 +333,14 @@ function App() {
               <img src={picture} alt="Character" className="w-full h-auto rounded" />
             </div>
             {bio && (
-              <div className='bio bg-white'>
+              <div className='bio text-black'>
                 {bio}
               </div>
             )}
           </div>
           <div className='grid'>
             {story && (
-              <div className='story bg-white'>
+              <div className='story text-black'>
                 {story}
               </div>
             )}
