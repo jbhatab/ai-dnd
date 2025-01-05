@@ -30,7 +30,7 @@ function App() {
           />
           <button 
             type="submit"
-            className="submit-button"
+            className="btn btn-white"
           >
             Submit
           </button>

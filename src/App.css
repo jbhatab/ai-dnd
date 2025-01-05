@@ -3,11 +3,11 @@ body {
   background: #030229;
 }
 
+#root {
+  width: 100%;
+}
+
 
 .main-input {
   display: block
-}
-
-#root {
-  width: 100%;
 }
