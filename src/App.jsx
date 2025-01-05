@@ -13,22 +13,11 @@ function App() {
   const [audioUrl, setAudioUrl] = useState(null)
   const [voiceLoading, setVoiceLoading] = useState(false)
   const [picture, setPicture] = useState('')
+  const [recordedText, setRecordedText] = useState('');
+  const [summary, setSummary] = useState('');
+  const [recording, setRecording] = useState(false);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map(result => result[0])
-        .map(result => result.transcript)
-        .join('');
-      // setInputText(transcript);
-    };
-
-    recognition.start();
 
     const getVoices = async () => {
       try {
@@ -54,6 +43,64 @@ function App() {
   
     getVoices();
   }, []);
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  
+  recognition.onresult = (event) => {
+    const transcript = Array.from(event.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
+      setRecordedText(transcript);
+  };
+
+  const handleRecordClick = (e) => {
+    e.preventDefault();
+    if (!recording) {
+      startRecording()
+    } else {
+      stopRecording()
+    }
+  }
+
+  function startRecording() {
+    setRecording(true);
+    setRecordedText("");
+    recognition.start()
+  }
+
+  function stopRecording() {
+    setRecording(false);
+    recognition.stop()
+    createSummary()
+  }
+
+  async function createSummary() {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{
+            role: "user",
+            content: `Create a summary of the following recorded conversation from a DnD campaign: ${recordedText}`
+          }]
+        })
+      })
+      const data = await response.json()
+      setSummary(data.choices[0].message.content)
+    } catch (error) {
+      console.error('Error:', error)
+      setBio('An error occurred while fetching the response')
+    }
+  }
 
   const handleInputChange = (e) => {
     setInputText(e.target.value)
@@ -213,6 +260,12 @@ function App() {
             >
               {loading ? 'Loading...' : 'Submit'}
             </button>
+            <button 
+              onClick={handleRecordClick}
+              className="btn btn-white flex"
+            >
+              {recording ? 'Recording...' : 'Start Recording'}
+            </button>
           </form>
           <div></div>
         </div>
@@ -233,6 +286,11 @@ function App() {
                 {story}
               </div>
             )}
+          </div>
+          <div>
+              <div className='story bg-white'>
+                {summary}
+              </div>
           </div>
         </div>
       </div>
