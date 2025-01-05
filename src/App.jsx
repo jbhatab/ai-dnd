@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [audioUrl, setAudioUrl] = useState(null)
   const [voiceLoading, setVoiceLoading] = useState(false)
+  const [picture, setPicture] = useState('')
 
   const handleInputChange = (e) => {
     setInputText(e.target.value)
@@ -111,11 +112,36 @@ function App() {
       }
     }
 
+    const generateImage = async() => {
+      try {
+        const response = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+              prompt: `Now generate an image of this character. Keep it in the official DND books artstyle: ${inputText}`,
+              n: 1,           // Number of images to generate
+              size: "1024x1024" // Image size
+          }),
+      });
+        const imageJson = await response.json()
+        setPicture(await imageJson.data[0].url)
+        console.log(picture)
+      } catch (error) {
+        console.error('Error:', error)
+      } finally {
+        setLoading(false);
+      }
+    }
+
     try {
       // Run both API calls in parallel
       await Promise.all([
         generateBio(),
-        generateStory()
+        generateStory(),
+        generateImage()
       ])
     } catch (error) {
       console.error('Error in parallel execution:', error)
@@ -150,7 +176,7 @@ function App() {
         <div className="p-8 shadow-lg rounded-lg bg-[#E0E8DE]">
           <div className='grid grid-cols-2'>
             <div className='image'>
-              <img src="/gnome.png" alt="Character" className="w-full h-auto rounded" />
+              <img src={picture} alt="Character" className="w-full h-auto rounded" />
             </div>
             {bio && (
               <div className='bio bg-white'>
