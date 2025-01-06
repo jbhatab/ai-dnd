@@ -320,9 +320,24 @@ function App() {
     <>
       <div className='container mx-auto'>
         <div className='grid pt-20 pb-10'>
-          <h1 className='text-center font-extrabold'>
-            DND AI
+          <h1 className='text-center font-extrabold main-title'>
+            DND CO-PILOT
           </h1>
+        </div>
+        <div className='grid grid-cols-11'>
+          <div></div>
+          <div className='col-span-4'>
+            <button className='main-buttons'>
+              Create Character
+            </button>
+          </div>
+          <div></div>
+          <div className='col-span-4'>
+            <button className='main-buttons'>
+              Record Session
+            </button>
+          </div>
+          <div></div>
         </div>
         <div className='grid grid-cols-10'>
           <div></div>
