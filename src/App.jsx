@@ -83,6 +83,8 @@ function App() {
     } else {
       stopRecording()
     }
+
+    setActivePanel(2)
   }
 
   function startRecording() {
@@ -129,7 +131,6 @@ function App() {
 
   const generateVoice = async (text, voiceId) => {
     setVoiceLoading(true)
-    debugger
 
     try {
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -335,62 +336,64 @@ function App() {
           </div>
           <div></div>
           <div className='col-span-4'>
-            <button className='main-buttons' onClick={() => setActivePanel(2)}>
-              Record Session
-            </button>
-          </div>
-          <div></div>
-        </div>
-        <div className='grid grid-cols-10'>
-          <div></div>
-          <form onSubmit={handleSubmit} className='col-span-8 place-items-center flex'>
-            <input 
-              type="text"
-              value={inputText}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 text-gray-700 bg-white border rounded-lg focus:outline-none focus:border-blue-500 flex mr-4"
-              placeholder="Enter your text"
-            />
-            <button 
-              type="submit"
-              className="px-4 py-2 bg-black text-white rounded flex"
-              disabled={loading}
-            >
-              {loading ? 'Loading...' : 'Submit'}
-            </button>
-            <button 
-              onClick={handleRecordClick}
-              className="px-4 py-2 ml-4 bg-black text-white rounded flex"
-            >
+            <button className='main-buttons' onClick={handleRecordClick}>
               {recording ? 'Recording...' : 'Start Recording'}
             </button>
-          </form>
+          </div>
           <div></div>
         </div>
-        <div className="p-8 shadow-lg rounded-lg bg-[#E0E8DE]">
-          <div className='grid grid-cols-2'>
-            <div className='image'>
-              <img src={picture} alt="Character" className="w-full h-auto rounded" />
-            </div>
-            {bio && (
-              <div className='bio text-black'>
-                {bio}
-              </div>
-            )}
-          </div>
-          <div className='grid'>
-            {story && (
-              <div className='story'>
-                {story}
-              </div>
-            )}
-          </div>
+
+        { activePanel && activePanel == 1 && (
           <div>
-              <div className='story'>
-                {summary}
+                <div className='grid grid-cols-10'>
+              <div></div>
+              <form onSubmit={handleSubmit} className='col-span-8 place-items-center flex py-10'>
+                <input 
+                  type="text"
+                  value={inputText}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 text-gray-700 bg-white border rounded-lg focus:outline-none focus:border-blue-500 flex mr-4"
+                  placeholder="Craft your characters story..."
+                />
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-black text-white rounded flex"
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : 'Submit'}
+                </button>
+              </form>
+              <div></div>
+            </div>
+            <div className="p-8 shadow-lg rounded-lg bg-[#E0E8DE]">
+              <div className='grid grid-cols-2'>
+                <div className='image'>
+                  <img src={picture} alt="Character" className="w-full h-auto rounded" />
+                </div>
+                {bio && (
+                  <div className='bio text-black'>
+                    {bio}
+                  </div>
+                )}
               </div>
+              <div className='grid'>
+                {story && (
+                  <div className='story'>
+                    {story}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div> 
+        )}
+
+        { activePanel && activePanel == 2 && (
+          <div>
+            <div className='story'>
+              {summary}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   )
