@@ -319,7 +319,12 @@ function App() {
   return (
     <>
       <div className='container mx-auto'>
-        <div className='grid grid-cols-10 pb-4'>
+        <div className='grid pt-20 pb-10'>
+          <h1 className='text-center font-extrabold'>
+            DND AI
+          </h1>
+        </div>
+        <div className='grid grid-cols-10'>
           <div></div>
           <form onSubmit={handleSubmit} className='col-span-8 place-items-center flex'>
             <input 
@@ -331,14 +336,14 @@ function App() {
             />
             <button 
               type="submit"
-              className="btn btn-white flex"
+              className="px-4 py-2 bg-black text-white rounded flex"
               disabled={loading}
             >
               {loading ? 'Loading...' : 'Submit'}
             </button>
             <button 
               onClick={handleRecordClick}
-              className="btn btn-white flex"
+              className="px-4 py-2 ml-4 bg-black text-white rounded flex"
             >
               {recording ? 'Recording...' : 'Start Recording'}
             </button>
