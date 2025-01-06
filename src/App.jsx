@@ -18,6 +18,8 @@ function App() {
   const [recordedText, setRecordedText] = useState('');
   const [summary, setSummary] = useState('');
   const [recording, setRecording] = useState(false);
+  const [activePanel, setActivePanel] = useState(null);
+
   const summaryPrompt = `
     Create a summary based the following transcript of a recorded DnD session.
     Return it as HTML with TailwindCSS.
@@ -327,13 +329,13 @@ function App() {
         <div className='grid grid-cols-11'>
           <div></div>
           <div className='col-span-4'>
-            <button className='main-buttons'>
+            <button className='main-buttons' onClick={() => setActivePanel(1)}>
               Create Character
             </button>
           </div>
           <div></div>
           <div className='col-span-4'>
-            <button className='main-buttons'>
+            <button className='main-buttons' onClick={() => setActivePanel(2)}>
               Record Session
             </button>
           </div>
